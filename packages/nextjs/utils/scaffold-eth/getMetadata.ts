@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
 
-const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : `http://localhost:${process.env.PORT || 3000}`;
-const titleTemplate = "%s | Scaffold-ETH 2";
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+  ? process.env.NEXT_PUBLIC_SITE_URL
+  : process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : `http://localhost:${process.env.PORT || 3000}`;
+// OG images must be absolute; IPFS deploys have per-CID URLs, so pin the image to the repo instead.
+const ogImageUrl =
+  "https://raw.githubusercontent.com/clawdbotatg/allowlists-frontens/main/packages/nextjs/public/thumbnail.jpg";
+const titleTemplate = "%s | The Allowlist";
 
 export const getMetadata = ({
   title,
   description,
-  imageRelativePath = "/thumbnail.jpg",
+  imageUrl = ogImageUrl,
 }: {
   title: string;
   description: string;
-  imageRelativePath?: string;
+  imageUrl?: string;
 }): Metadata => {
-  const imageUrl = `${baseUrl}${imageRelativePath}`;
-
   return {
     metadataBase: new URL(baseUrl),
     title: {

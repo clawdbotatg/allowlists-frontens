@@ -8,7 +8,7 @@ and early access, an airdrop distribution list, or reputation input.
 
 **Contract:** [`0xcB0b0531e86A9aC36Fa865cA8e3dbccF047FDA91`](https://etherscan.io/address/0xcB0b0531e86A9aC36Fa865cA8e3dbccF047FDA91#code) (verified, immutable, no owner powers beyond sweeping force-fed ETH)
 
-**Live (IPFS):** https://community.bgipfs.com/ipfs/bafybeiaxatnvomm7fd2dnkxugnrzhejnglxj6jc2wpqdle54epj3qykvbi/
+**Live (IPFS):** https://community.bgipfs.com/ipfs/bafybeiaqealqsujuczllmfkywjfhihqt5mi6td2ca6uirkcsyk7ee6gyjy/
 
 ## The game
 

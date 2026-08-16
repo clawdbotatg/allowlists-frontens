@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Address, AddressInput, EtherInput } from "@scaffold-ui/components";
+import { useFetchNativeCurrencyPrice } from "@scaffold-ui/hooks";
 import type { NextPage } from "next";
 import { formatEther, parseEther } from "viem";
-import { useAccount } from "wagmi";
+import { mainnet } from "viem/chains";
+import { useAccount, useSwitchChain } from "wagmi";
 import {
   ArrowPathIcon,
   BoltIcon,
@@ -13,6 +15,7 @@ import {
   FireIcon,
   TrophyIcon,
 } from "@heroicons/react/24/outline";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useScaffoldEventHistory, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 /** Integer sqrt on bigint — mirrors the contract's curve exactly. */
@@ -57,7 +60,15 @@ const Stat = ({ label, value, sub }: { label: string; value: React.ReactNode; su
 );
 
 const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
+  const { address: connectedAddress, chain } = useAccount();
+  const { switchChain, isPending: isSwitching } = useSwitchChain();
+  const wrongNetwork = !!connectedAddress && chain?.id !== mainnet.id;
+  const { price: ethPrice } = useFetchNativeCurrencyPrice();
+  // "(~$1,234)" suffix for an ETH wei amount, or "" while the price is loading
+  const usd = (wei?: bigint) =>
+    ethPrice > 0 && wei !== undefined
+      ? ` (~$${(Number(formatEther(wei)) * ethPrice).toLocaleString(undefined, { maximumFractionDigits: 0 })})`
+      : "";
 
   // ── immutable config ──
   const { data: launchTime } = useScaffoldReadContract({
@@ -218,14 +229,30 @@ const Home: NextPage = () => {
     return { creditedDelta, weightAdded, newPoints: pointsFromWeight(newWeight) };
   }, [amountWei, creditCap, earlyBps, yourHighWater, yourWeight]);
 
+  const [txError, setTxError] = useState<string | null>(null);
+
+  // Contract custom errors arrive as raw signatures with wei args — translate the ones a user can hit.
+  const friendlyError = (e: unknown): string | null => {
+    const s = String((e as { message?: string })?.message ?? e);
+    if (/user rejected|user denied|rejected the request/i.test(s)) return null;
+    if (s.includes("OnlyEOA"))
+      return "This wallet has code on it (Safe, smart account, or EIP-7702 delegation) — only plain EOAs can deposit. Use a regular wallet address.";
+    if (s.includes("MustEscalate")) return `You must beat your own record: send at least ${fmtEth(requiredNext)} ETH.`;
+    if (s.includes("AlreadySettled")) return "The game has settled — deposits are closed forever.";
+    if (s.includes("AmountTooLarge")) return "That amount is larger than the contract accepts in one deposit.";
+    return "Transaction failed — open the browser console for details.";
+  };
+
   const handleDeposit = async () => {
     if (amountWei === undefined) return;
+    setTxError(null);
     try {
       await writeCurator({ functionName: "deposit", value: amountWei });
       setAmountStr("");
       setFill(f => ({ nonce: f.nonce + 1, value: "" }));
     } catch (e) {
       console.error("deposit failed", e);
+      setTxError(friendlyError(e));
     }
   };
 
@@ -336,7 +363,7 @@ const Home: NextPage = () => {
                   }
                 >
                   {ethNeeded !== undefined && ethNeeded > 0n
-                    ? `${fmtEth(ethNeeded)} ETH still needed or it settles`
+                    ? `${fmtEth(ethNeeded)} ETH${usd(ethNeeded)} still needed or it settles`
                     : "hour is safe ✓"}
                 </span>
               </div>
@@ -370,7 +397,11 @@ const Home: NextPage = () => {
 
       {/* ───────────────────────── global stats ───────────────────────── */}
       <div className="flex flex-wrap gap-4 justify-center mt-8 px-5">
-        <Stat label="Volume cycled" value={`${fmtEth(stats?.[0], 2)} ETH`} sub="all of it refunded" />
+        <Stat
+          label="Volume cycled"
+          value={`${fmtEth(stats?.[0], 2)} ETH`}
+          sub={`all of it refunded${usd(stats?.[0])}`}
+        />
         <Stat label="Wallets on the list" value={stats?.[1]?.toString() ?? "…"} />
         <Stat label="Deposits" value={stats?.[2]?.toString() ?? "…"} />
       </div>
@@ -402,7 +433,9 @@ const Home: NextPage = () => {
               </div>
               <div className="flex justify-between border-t border-base-300 pt-2 mt-1">
                 <span className="opacity-70">Next deposit must be ≥</span>
-                <span className="font-mono font-bold">{fmtEth(requiredNext)} ETH</span>
+                <span className="font-mono font-bold">
+                  {fmtEth(requiredNext)} ETH{usd(requiredNext)}
+                </span>
               </div>
               <p className="text-xs opacity-70 m-0 mt-1">
                 Escalation rule: every deposit must beat your own record by at least {fmtEth(minEscalation)} ETH, and
@@ -410,7 +443,10 @@ const Home: NextPage = () => {
               </p>
             </div>
           ) : (
-            <p className="opacity-70 m-0">Connect a wallet to see your record and play.</p>
+            <div className="flex flex-col items-start gap-3">
+              <p className="opacity-70 m-0">See your record and play:</p>
+              <RainbowKitCustomConnectButton />
+            </div>
           )}
         </div>
 
@@ -467,6 +503,12 @@ const Home: NextPage = () => {
                       )}
                     </span>
                   </div>
+                  {inGrace === true && (
+                    <p className="opacity-60 m-0 mt-1">
+                      Estimate at the current {multiplier}x multiplier — it decays until hour{" "}
+                      {firstJudgedHour?.toString() ?? "…"}, so the credited weight at inclusion may be slightly lower.
+                    </p>
+                  )}
                 </div>
               )}
               {amountWei !== undefined && !meetsMinimum && requiredNext !== undefined && (
@@ -474,14 +516,30 @@ const Home: NextPage = () => {
                   Must send at least {fmtEth(requiredNext)} ETH (your record + {fmtEth(minEscalation)} escalation).
                 </p>
               )}
-              <button
-                className="btn btn-primary w-full mt-3"
-                disabled={!connectedAddress || !meetsMinimum || isMining}
-                onClick={handleDeposit}
-              >
-                {isMining ? <span className="loading loading-spinner loading-sm" /> : null}
-                {isMining ? "confirming…" : "Send it (you get it right back)"}
-              </button>
+              {!connectedAddress ? (
+                <div className="flex justify-center mt-3">
+                  <RainbowKitCustomConnectButton />
+                </div>
+              ) : wrongNetwork ? (
+                <button
+                  className="btn btn-warning w-full mt-3"
+                  disabled={isSwitching}
+                  onClick={() => switchChain({ chainId: mainnet.id })}
+                >
+                  {isSwitching ? <span className="loading loading-spinner loading-sm" /> : null}
+                  {isSwitching ? "switching…" : "Switch to Ethereum"}
+                </button>
+              ) : (
+                <button
+                  className="btn btn-primary w-full mt-3"
+                  disabled={!meetsMinimum || isMining}
+                  onClick={handleDeposit}
+                >
+                  {isMining ? <span className="loading loading-spinner loading-sm" /> : null}
+                  {isMining ? "confirming…" : "Send it (you get it right back)"}
+                </button>
+              )}
+              {txError && <p className="text-error text-xs mt-2 m-0">{txError}</p>}
               <p className="text-xs opacity-70 mt-2 m-0">
                 The full amount is refunded to you inside the same transaction — the contract never keeps a wei. You
                 spend gas; the chain remembers you held the ETH.
@@ -592,18 +650,21 @@ const Home: NextPage = () => {
       </div>
 
       {/* ───────────────────────── footer note ───────────────────────── */}
-      <div className="w-full max-w-4xl px-5 mb-12 text-center text-xs opacity-60">
-        <p className="m-0">
-          Contract:{" "}
+      <div className="w-full max-w-4xl px-5 mb-12 text-center text-xs opacity-70">
+        <div className="flex justify-center items-center gap-2 flex-wrap">
+          <span>WhitelistCurator on Ethereum mainnet:</span>
+          <Address address="0xcB0b0531e86A9aC36Fa865cA8e3dbccF047FDA91" size="sm" chain={mainnet} />
+        </div>
+        <p className="m-0 mt-1">
           <a
             className="link"
             href="https://etherscan.io/address/0xcB0b0531e86A9aC36Fa865cA8e3dbccF047FDA91#code"
             target="_blank"
             rel="noreferrer"
           >
-            WhitelistCurator @ 0xCb0b…dA91
+            verified source
           </a>{" "}
-          on Ethereum mainnet · immutable, no owner, no upgrade path · built with 🏗 Scaffold-ETH 2 —{" "}
+          · immutable, no owner, no upgrade path · built with 🏗 Scaffold-ETH 2 —{" "}
           <a
             className="link"
             href="https://github.com/clawdbotatg/allowlists-frontens"

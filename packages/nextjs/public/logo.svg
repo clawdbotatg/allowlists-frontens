@@ -1,10 +1,19 @@
-<svg width="103" height="102" viewBox="0 0 103 102" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="0.72229" y="0.99707" width="101.901" height="100.925" fill="black"/>
-<path d="M69.4149 42.5046L70.9118 39.812L72.5438 42.5046L83.0241 59.1906L70.9533 65.9361L59.1193 59.1906L69.4149 42.5046Z" fill="white"/>
-<path d="M70.9533 69.2496L60.6577 63.6876L70.9533 79.0719L81.184 63.4985L70.9533 69.2496Z" fill="white"/>
-<path d="M70.953 65.9259V41.8533V39.8499L83.063 59.1785L70.953 65.9259Z" fill="#DFDFDF"/>
-<path d="M70.9617 79.0499L71.0409 69.2969L81.2062 63.4629L70.9617 79.0499Z" fill="#DFDFDF"/>
-<path d="M34.409 21.6931V24.6125H34.4132L34.4124 27.747H26.8093L26.8093 27.7566H25.5383L21.3839 36.4914H34.4135V39.9723H34.4091L34.4135 69.4549C34.4135 73.5268 31.1126 76.8277 27.0408 76.8277H24.7346L19.8064 84.0772H62.4172L57.3539 76.8277H51.7795C47.7076 76.8277 44.4067 73.5268 44.4067 69.4549L44.4024 43.665C44.5071 39.7076 47.7304 36.5273 51.7046 36.4914H79.5481L74.6584 27.7566H53.6021L53.6021 27.747L44.3987 27.7469L44.3994 24.6125H44.4022V18.3245L34.409 21.6931Z" fill="white"/>
-<path d="M39.882 19.8517V76.5496C39.9731 74.9642 41.0475 70.8554 44.3648 69.1027V50.8665L44.4703 50.8998V43.8309C44.4703 39.7591 47.7712 36.4582 51.843 36.4582H79.5812L76.9508 31.8656H49.9083C46.1286 31.8656 44.3648 34.556 44.3648 34.556L44.4435 18.3066L39.882 19.8517Z" fill="#DFDFDF"/>
-<path d="M23.622 31.7927L21.3295 36.5083H34.4247V31.7927H23.622Z" fill="#DFDFDF"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4338ca"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bg)"/>
+  <!-- allowlist rows -->
+  <circle cx="15" cy="20" r="3.2" fill="#c7d2fe"/>
+  <rect x="23" y="17.2" width="26" height="5.6" rx="2.8" fill="#c7d2fe"/>
+  <circle cx="15" cy="32" r="3.2" fill="#e0e7ff"/>
+  <rect x="23" y="29.2" width="20" height="5.6" rx="2.8" fill="#e0e7ff"/>
+  <circle cx="15" cy="44" r="3.2" fill="#eef2ff"/>
+  <rect x="23" y="41.2" width="14" height="5.6" rx="2.8" fill="#eef2ff"/>
+  <!-- check badge -->
+  <circle cx="47" cy="45" r="12" fill="#22c55e" stroke="#ffffff" stroke-width="2.5"/>
+  <path d="M41.5 45.5 l3.8 3.8 l7.2 -8" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

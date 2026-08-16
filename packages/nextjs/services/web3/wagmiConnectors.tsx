@@ -3,8 +3,8 @@ import {
   base,
   ledgerWallet,
   metaMaskWallet,
+  phantomWallet,
   rainbowWallet,
-  safeWallet,
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { rainbowkitBurnerWallet } from "burner-connector";
@@ -17,13 +17,15 @@ const hasOnlyLocalTargetNetworks = targetNetworks.every(network => network.id ==
 const showBurnerWallet =
   burnerWalletMode !== "disabled" && (burnerWalletMode === "allNetworks" || hasOnlyLocalTargetNetworks);
 
+// No safeWallet on purpose: WhitelistCurator reverts OnlyEOA for every contract account,
+// so offering Safe would invite a guaranteed-failing flow.
 const wallets = [
   metaMaskWallet,
   walletConnectWallet,
   ledgerWallet,
   base,
   rainbowWallet,
-  safeWallet,
+  phantomWallet,
   ...(showBurnerWallet ? [rainbowkitBurnerWallet] : []),
 ];
 
@@ -46,7 +48,7 @@ export const wagmiConnectors = () => {
     ],
 
     {
-      appName: "scaffold-eth-2",
+      appName: "The Allowlist",
       projectId: scaffoldConfig.walletConnectProjectId,
     },
   );
