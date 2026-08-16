@@ -8,6 +8,8 @@ and early access, an airdrop distribution list, or reputation input.
 
 **Contract:** [`0xcB0b0531e86A9aC36Fa865cA8e3dbccF047FDA91`](https://etherscan.io/address/0xcB0b0531e86A9aC36Fa865cA8e3dbccF047FDA91#code) (verified, immutable, no owner powers beyond sweeping force-fed ETH)
 
+**Live (IPFS):** https://community.bgipfs.com/ipfs/bafybeiaxatnvomm7fd2dnkxugnrzhejnglxj6jc2wpqdle54epj3qykvbi/
+
 ## The game
 
 1. **Escalation** — your recorded contribution is your high-water single send.
@@ -42,8 +44,19 @@ The contract is wired up as an external contract in
 `packages/nextjs/scaffold.config.ts`. No local chain or deploy step needed.
 
 For production, set your own `NEXT_PUBLIC_ALCHEMY_API_KEY` and
-`NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` (see `scaffold.config.ts`), then
-`yarn vercel` or `yarn ipfs`.
+`NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` in `packages/nextjs/.env.local`
+(see `scaffold.config.ts`), then `yarn vercel` — or deploy to IPFS
+([BGIPFS](https://bgipfs.com)) from `packages/nextjs`:
+
+```bash
+rm -rf .next out                     # stale builds are the #1 IPFS footgun
+NEXT_PUBLIC_IPFS_BUILD=true yarn build
+yarn bgipfs upload config init -u https://upload.bgipfs.com -k <your-bgipfs-key>
+yarn bgipfs upload out               # → https://community.bgipfs.com/ipfs/<CID>/
+```
+
+(The stock `yarn ipfs` script runs `config init` without `-k`, so the upload
+lands unauthenticated — use the explicit flow above.)
 
 ## Fork it
 
