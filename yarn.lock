@@ -13133,10 +13133,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qr@npm:~0":
-  version: 0.6.0
-  resolution: "qr@npm:0.6.0"
-  checksum: 10/d60b26c1cc29b1e3d2b5c0b3e3af15d7ae90eb9eca12b86505778ba90bfebd75ee125bcd0c782fd03f6138b4cf72fdbe0ea94ba12a0e4e745b43728a95e76af9
+"qr@npm:0.5.5":
+  version: 0.5.5
+  resolution: "qr@npm:0.5.5"
+  checksum: 10/6eb9566aa40f4d907b3fb0f8f42b4dc9799bfe677198ebd6528855ae1df0e879e06063903d207fe17d6ee7a6d942dcfe285201036f6a2709759b8cd454ab552f
   languageName: node
   linkType: hard
 

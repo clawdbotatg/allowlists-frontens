@@ -8,7 +8,7 @@ and early access, an airdrop distribution list, or reputation input.
 
 **Contract:** [`0xcB0b0531e86A9aC36Fa865cA8e3dbccF047FDA91`](https://etherscan.io/address/0xcB0b0531e86A9aC36Fa865cA8e3dbccF047FDA91#code) (verified, immutable, no owner powers beyond sweeping force-fed ETH)
 
-**Live (IPFS):** https://community.bgipfs.com/ipfs/bafybeiaqealqsujuczllmfkywjfhihqt5mi6td2ca6uirkcsyk7ee6gyjy/
+**Live (IPFS):** https://community.bgipfs.com/ipfs/bafybeibgucwpmyvurqnkvvzgw3cqwkgjuoumhaxj6lnszqp3ne5ztabcmm/
 
 ## The game
 
@@ -57,6 +57,10 @@ yarn bgipfs upload out               # → https://community.bgipfs.com/ipfs/<CI
 
 (The stock `yarn ipfs` script runs `config init` without `-k`, so the upload
 lands unauthenticated — use the explicit flow above.)
+
+> **Don't remove the `"qr": "0.5.5"` resolution** in the root `package.json`:
+> RainbowKit's QR component (`cuer`) passes `border: 0`, which `qr@0.6.0`
+> started rejecting — without the pin the WalletConnect modal crashes the page.
 
 ## Fork it
 

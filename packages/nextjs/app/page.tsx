@@ -6,7 +6,7 @@ import { useFetchNativeCurrencyPrice } from "@scaffold-ui/hooks";
 import type { NextPage } from "next";
 import { formatEther, parseEther } from "viem";
 import { mainnet } from "viem/chains";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useAccount, useBytecode, useSwitchChain } from "wagmi";
 import {
   ArrowPathIcon,
   BoltIcon,
@@ -63,6 +63,17 @@ const Home: NextPage = () => {
   const { address: connectedAddress, chain } = useAccount();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
   const wrongNetwork = !!connectedAddress && chain?.id !== mainnet.id;
+
+  // The contract admits plain EOAs only — catch delegated/contract wallets BEFORE they burn gas.
+  // Polled so the card clears by itself once the user revokes their 7702 delegation.
+  const { data: accountCode } = useBytecode({
+    address: connectedAddress,
+    chainId: mainnet.id,
+    query: { enabled: !!connectedAddress, refetchInterval: 15_000 },
+  });
+  const hasCode = !!accountCode && accountCode !== "0x";
+  const is7702 = hasCode && accountCode.toLowerCase().startsWith("0xef0100");
+  const delegateAddress = is7702 ? (`0x${accountCode.slice(8)}` as `0x${string}`) : undefined;
   const { price: ethPrice } = useFetchNativeCurrencyPrice();
   // "(~$1,234)" suffix for an ETH wei amount, or "" while the price is loading
   const usd = (wei?: bigint) =>
@@ -529,6 +540,34 @@ const Home: NextPage = () => {
                   {isSwitching ? <span className="loading loading-spinner loading-sm" /> : null}
                   {isSwitching ? "switching…" : "Switch to Ethereum"}
                 </button>
+              ) : hasCode ? (
+                <div className="bg-warning/10 border border-warning rounded-xl p-4 mt-3 text-sm">
+                  {is7702 ? (
+                    <>
+                      <p className="m-0 font-semibold">
+                        This wallet has an EIP-7702 delegation — a deposit would revert with OnlyEOA.
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="opacity-70">Delegated to:</span>
+                        <Address address={delegateAddress} size="sm" chain={mainnet} />
+                      </div>
+                      <p className="m-0 mt-2">
+                        Good news: 7702 is fully reversible and can&apos;t brick your account — your key stays in
+                        control and no funds move. In MetaMask:{" "}
+                        <span className="font-semibold">
+                          ⋮ → Account details → Smart account → Switch back to regular account
+                        </span>{" "}
+                        (one small tx, on Ethereum mainnet). Deposit here, then re-enable it if you like — your
+                        allowlist standing is permanent either way. This card clears itself once the delegation is gone.
+                      </p>
+                    </>
+                  ) : (
+                    <p className="m-0">
+                      This address is a smart contract (Safe or smart account) — the contract admits plain EOAs only.
+                      Connect a regular wallet address instead.
+                    </p>
+                  )}
+                </div>
               ) : (
                 <button
                   className="btn btn-primary w-full mt-3"
