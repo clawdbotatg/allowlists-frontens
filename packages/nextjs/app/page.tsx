@@ -667,7 +667,7 @@ const Home: NextPage = () => {
           · immutable, no owner, no upgrade path · built with 🏗 Scaffold-ETH 2 —{" "}
           <a
             className="link"
-            href="https://github.com/clawdbotatg/allowlists-frontens"
+            href="https://github.com/clawdbotatg/allowlists-frontend"
             target="_blank"
             rel="noreferrer"
           >

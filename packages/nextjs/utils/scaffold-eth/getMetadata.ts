@@ -7,7 +7,7 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
     : `http://localhost:${process.env.PORT || 3000}`;
 // OG images must be absolute; IPFS deploys have per-CID URLs, so pin the image to the repo instead.
 const ogImageUrl =
-  "https://raw.githubusercontent.com/clawdbotatg/allowlists-frontens/main/packages/nextjs/public/thumbnail.jpg";
+  "https://raw.githubusercontent.com/clawdbotatg/allowlists-frontend/main/packages/nextjs/public/thumbnail.jpg";
 const titleTemplate = "%s | The Allowlist";
 
 export const getMetadata = ({

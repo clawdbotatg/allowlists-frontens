@@ -31,7 +31,7 @@ export const Footer = () => {
           <div className="flex justify-center items-center gap-2 text-sm w-full">
             <div className="text-center">
               <a
-                href="https://github.com/clawdbotatg/allowlists-frontens"
+                href="https://github.com/clawdbotatg/allowlists-frontend"
                 target="_blank"
                 rel="noreferrer"
                 className="link"
